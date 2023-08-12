@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 from football_spider.items import LeagueItem, ClubItem, PlayerItem, MatchItem
-from models import Base, LeagueModel
+from models import Base, LeagueModel, ClubModel
 
 
 class DatabasePipeline(object, metaclass=ABCMeta):
@@ -78,7 +78,12 @@ class MySQLPipeline(DatabasePipeline):
         pass
 
     def process_club(self, item, spider):
-        pass
+        print("=========process_club===========", item)
+        try:
+            self.session.merge(ClubModel().from_item(item))
+        except IntegrityError:
+            print("Insert failed")
+        return item
 
     def process_player(self, item, spider):
         pass
