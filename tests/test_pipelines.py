@@ -57,5 +57,18 @@ class TestMySQLPipeline(unittest.TestCase):
         self.assertEqual(result[1], 'Premier League')
 
 
+    def test_process_club(self):
+        fake_response = fake_response_from_file('samples/Premier League 23_24 _ Transfermarkt.html')
+        fake_response.request.meta['league_id'] = 'GB1'
+        results = self.spider.parse_league(
+            fake_response)
+        item = self._sample_an_item(results)
+        self.pipeline.process_item(item, self.spider)
+
+        result = self.session.execute(text("SELECT * FROM club WHERE name = 'Manchester City'")).fetchone()
+        self.assertEqual(result[0], 281)
+        self.assertEqual(result[1], 'Manchester City')
+
+
 if __name__ == '__main__':
     unittest.main()

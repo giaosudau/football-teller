@@ -78,12 +78,12 @@ class TransfermarkSpider(scrapy.Spider):
             self.logger.debug(club_league)
             yield club_league
 
-            # league_match_url = f'https://www.transfermarkt.co.uk/{slug_name}/gesamtspielplan/wettbewerb/{code_name}/saison_id/{self.season}'
-            # yield scrapy.Request(league_match_url, callback=self.parse_league_match)
-            #
-            # club_url = response.xpath(f'.//tr[{i}]/td[2]/a/@href').get()
-            # url = str(response.urljoin(club_url))
-            # yield scrapy.Request(url, callback=self.parse_club)
+            league_match_url = f'https://www.transfermarkt.co.uk/{slug_name}/gesamtspielplan/wettbewerb/{code_name}/saison_id/{self.season}'
+            yield scrapy.Request(league_match_url, callback=self.parse_league_match)
+
+            club_url = response.xpath(f'.//tr[{i}]/td[2]/a/@href').get()
+            url = str(response.urljoin(club_url))
+            yield scrapy.Request(url, callback=self.parse_club)
 
     def parse_league_match(self, response, **kwargs):
         match_days = response.xpath(

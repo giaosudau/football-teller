@@ -19,7 +19,8 @@ def clean_value(val):
 
 CURRENCY_UNITS = {
     "k": 1000,
-    "m": 1000000
+    "m": 1000000,
+    'b': 1000000000
 }
 
 
@@ -31,7 +32,7 @@ def parse_currency(currency_string):
     currency_string = currency_string.replace(" ", "")
 
     # Find the match for the currency symbol
-    match = re.match(r"€(\d+(?:\.\d+)?)([km]?)", currency_string)
+    match = re.match(r"€(\d+(?:\.\d+)?)([kmb]?)", currency_string)
 
     # If there is no match, return None
     if match is None:
