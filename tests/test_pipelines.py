@@ -20,7 +20,7 @@ class TestMySQLPipeline(unittest.TestCase):
                 self.pipeline = MySQLPipeline("test_config.cfg")
                 self.pipeline.open_spider(None)
                 self.conn = self.pipeline.engine.connect()
-                self.session = self.pipeline.Session()
+                self.session = self.pipeline.session
                 break
             except OperationalError:
                 time.sleep(5)  # Wait and retry

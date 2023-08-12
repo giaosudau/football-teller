@@ -2,7 +2,6 @@ import configparser
 from abc import ABCMeta, abstractmethod
 
 from sqlalchemy import create_engine
-from sqlalchemy.dialects import mysql
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
@@ -50,29 +49,29 @@ class DatabasePipeline(object, metaclass=ABCMeta):
 
 
 class MySQLPipeline(DatabasePipeline):
-    def __init__(self, config_path='../config.cfg'):
+    def __init__(self, config_path='config.cfg'):
         super().__init__()
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
         print(self.config)
 
     def open_spider(self, spider):
+        print(f"======open_spider= {self.config}=================")
         db_config = self.config['mysql']
         mysql_url = f'mysql+pymysql://{db_config["user"]}:{db_config["password"]}@{db_config["host"]}:{db_config["port"]}/{db_config["db"]}'
         print(mysql_url)
         self.engine = create_engine(mysql_url)
         # Create the table in the database
-        self.Session = sessionmaker(bind=self.engine)
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session()
         Base.metadata.create_all(self.engine)
 
     def process_league(self, item: LeagueItem, spider):
-        session = self.Session()
         try:
-            session.merge(LeagueModel().from_item(item))
-            session.commit()
+            self.session.merge(LeagueModel().from_item(item))
+
         except IntegrityError:
             print("Insert failed")
-        session.close()
         return item
 
     def process_match(self, item, spider):
@@ -85,4 +84,5 @@ class MySQLPipeline(DatabasePipeline):
         pass
 
     def close_spider(self, spider):
-        pass
+        self.session.commit()
+        self.session.close()

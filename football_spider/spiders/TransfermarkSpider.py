@@ -25,8 +25,7 @@ class TransfermarkSpider(scrapy.Spider):
         page_item_class = 'tm-pagination__list-item'
         num_pages = response.xpath(f'//*[@class="{page_item_class} {last_page_class}"]//@href').get().split("=")[-1]
         self.logger.info(f"Num Pages {num_pages}")
-        yield self.parse_region_by_page(response)
-        for i in range(2, int(num_pages) + 1):
+        for i in range(1, int(num_pages) + 1):
             url = f'{self.start_urls[0]}?page={i}'
             yield scrapy.Request(url, callback=self.parse_region_by_page)
 
@@ -35,6 +34,10 @@ class TransfermarkSpider(scrapy.Spider):
         self.logger.info(f"-------------Numer of league {num_leagues} -------------")
         for i in range(2, num_leagues + 2):
             league_url = response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[1]//tr/td[1]//@href').get()
+            self.logger.debug(league_url)
+            if not league_url:
+                self.logger.debug("Skip the Section")
+                continue
             league = LeagueItem(
                 url=league_url
                 , id=league_url.split("/")[-1]
