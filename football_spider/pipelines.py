@@ -3,15 +3,18 @@ from abc import ABCMeta, abstractmethod
 
 from sqlalchemy import create_engine
 from sqlalchemy.dialects import mysql
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import sessionmaker
 
 from football_spider.items import LeagueItem, ClubItem, PlayerItem, MatchItem
+from models import Base, LeagueModel
 
 
 class DatabasePipeline(object, metaclass=ABCMeta):
 
     def __init__(self):
         self.item_map = {
-            LeagueItem: self.process_match
+            LeagueItem: self.process_league
             , MatchItem: self.process_match
             , ClubItem: self.process_club
             , PlayerItem: self.process_player
@@ -58,9 +61,19 @@ class MySQLPipeline(DatabasePipeline):
         mysql_url = f'mysql+pymysql://{db_config["user"]}:{db_config["password"]}@{db_config["host"]}:{db_config["port"]}/{db_config["db"]}'
         print(mysql_url)
         self.engine = create_engine(mysql_url)
+        # Create the table in the database
+        self.Session = sessionmaker(bind=self.engine)
+        Base.metadata.create_all(self.engine)
 
-    def process_league(self, item, spider):
-        pass
+    def process_league(self, item: LeagueItem, spider):
+        session = self.Session()
+        try:
+            session.merge(LeagueModel().from_item(item))
+            session.commit()
+        except IntegrityError:
+            print("Insert failed")
+        session.close()
+        return item
 
     def process_match(self, item, spider):
         pass

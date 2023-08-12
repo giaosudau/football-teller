@@ -2,12 +2,34 @@ import time
 import unittest
 import subprocess
 
+import scrapy
+from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 from football_spider.pipelines import MySQLPipeline
+from football_spider.spiders.TransfermarkSpider import TransfermarkSpider
+from tests import fake_response_from_file
 
 
 class TestMySQLPipeline(unittest.TestCase):
+
+    def setUp(self):
+        for i in range(5):
+            try:
+                self.spider = TransfermarkSpider()
+                self.pipeline = MySQLPipeline("test_config.cfg")
+                self.pipeline.open_spider(None)
+                self.conn = self.pipeline.engine.connect()
+                self.session = self.pipeline.Session()
+                break
+            except OperationalError:
+                time.sleep(5)  # Wait and retry
+        else:
+            raise Exception("Database not ready")
+
+    def tearDown(self):
+        self.session.close()
+        self.conn.close()
 
     @classmethod
     def setUpClass(cls):
@@ -18,19 +40,21 @@ class TestMySQLPipeline(unittest.TestCase):
         subprocess.run(["docker-compose", "-f", "test-docker-compose.yml", "down"])
 
     def test_db_connection(self):
-        self.pipeline = MySQLPipeline("test_config.cfg")
-        self.pipeline.open_spider(None)
         # Check connection is active
-        for i in range(5):
-            try:
-                conn = self.pipeline.engine.connect()
-                break
-            except OperationalError:
-                time.sleep(2)  # Wait and retry
-        else:
-            raise Exception("Database not ready")
-        self.assertTrue(conn.closed == False)
-        conn.close()
+        self.assertTrue(self.conn.closed == False)
+
+    def _sample_an_item(self, results):
+        for item in results:
+            if isinstance(item, (scrapy.Item, dict)):
+                return item
+
+    def test_process_league(self):
+        results = self.spider.parse_region_by_page(
+            fake_response_from_file('samples/European leagues & cups _ Transfermarkt.html'))
+        self.pipeline.process_item(self._sample_an_item(results), self.spider)
+        result = self.session.execute(text("SELECT * FROM league")).fetchone()
+        self.assertEqual(result[0], 'GB1')
+        self.assertEqual(result[1], 'Premier League')
 
 
 if __name__ == '__main__':

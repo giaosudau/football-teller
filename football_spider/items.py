@@ -7,10 +7,11 @@ import scrapy
 
 
 class LeagueItem(scrapy.Item):
+    id = scrapy.Field()
     name = scrapy.Field()
     url = scrapy.Field()
     country = scrapy.Field()
-    clubs = scrapy.Field()
+    num_clubs = scrapy.Field()
     num_players = scrapy.Field()
     avg_age = scrapy.Field()
     percentage_foreigner = scrapy.Field()

@@ -37,9 +37,10 @@ class TransfermarkSpider(scrapy.Spider):
             league_url = response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[1]//tr/td[1]//@href').get()
             league = LeagueItem(
                 url=league_url
+                , id=league_url.split("/")[-1]
                 , name=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[1]//tr/td[2]/a/text()').get()
                 , country=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[2]/img/@title').get()
-                , clubs=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[3]/text()').get()
+                , num_clubs=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[3]/text()').get()
                 , num_players=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[4]/text()').get()
                 , avg_age=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[5]/text()').get()
                 , percentage_foreigner=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[6]//text()').get()
