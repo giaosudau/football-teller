@@ -1,13 +1,13 @@
+import subprocess
 import time
 import unittest
-import subprocess
 
 import scrapy
-from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 from football_spider.pipelines import MySQLPipeline
 from football_spider.spiders.TransfermarkSpider import TransfermarkSpider
+from models import MatchModel, ClubModel, LeagueModel
 from tests import fake_response_from_file
 
 
@@ -52,22 +52,43 @@ class TestMySQLPipeline(unittest.TestCase):
         results = self.spider.parse_region_by_page(
             fake_response_from_file('samples/European leagues & cups _ Transfermarkt.html'))
         self.pipeline.process_item(self._sample_an_item(results), self.spider)
-        result = self.session.execute(text("SELECT * FROM league")).fetchone()
-        self.assertEqual(result[0], 'GB1')
-        self.assertEqual(result[1], 'Premier League')
-
+        league_id, league_country = self.session.query(LeagueModel.id,
+                                                         LeagueModel.country).filter(
+            LeagueModel.name == 'Premier League').one()
+        self.assertEqual(league_id, 'GB1')
+        self.assertEqual(league_country, 'England')
 
     def test_process_club(self):
+        self.add_club_data()
+        club_id, club_slug_name = self.session.query(ClubModel.id,
+                                                     ClubModel.slug_name).filter(
+            ClubModel.name == 'Manchester City').one()
+        self.assertEqual(club_id, 281)
+        self.assertEqual(club_slug_name, 'manchester-city')
+
+    def add_club_data(self):
         fake_response = fake_response_from_file('samples/Premier League 23_24 _ Transfermarkt.html')
         fake_response.request.meta['league_id'] = 'GB1'
         results = self.spider.parse_league(
             fake_response)
+        for item in results:
+            if isinstance(item, (scrapy.Item, dict)):
+                self.pipeline.process_item(item, self.spider)
+
+    def test_process_match(self):
+        self.add_club_data()
+        fake_response = fake_response_from_file('samples/Premier League - All fixtures & results _ Transfermarkt.html')
+        results = self.spider.parse_league_match(
+            fake_response)
         item = self._sample_an_item(results)
         self.pipeline.process_item(item, self.spider)
 
-        result = self.session.execute(text("SELECT * FROM club WHERE name = 'Manchester City'")).fetchone()
-        self.assertEqual(result[0], 281)
-        self.assertEqual(result[1], 'Manchester City')
+        home_club_name, away_club_name = self.session.query(MatchModel.home_club_name,
+                                                            MatchModel.away_club_name).filter(
+            MatchModel.id == 3837814).one()
+
+        self.assertEqual(home_club_name, 'Crystal Palace')
+        self.assertEqual(away_club_name, 'Arsenal FC')
 
 
 if __name__ == '__main__':

@@ -122,3 +122,38 @@ class ClubModel(Base):
             , 'total_market_value': total_market_value
         }
         return cls(**data)
+
+
+class MatchModel(Base):
+    __tablename__ = 'game'
+
+    id = Column(Integer, primary_key=True)
+    season = Column(String(255), nullable=False)
+    date = Column(String(20), nullable=False)
+    match_day = Column(String(10), nullable=False)
+    time_at = Column(String(20), nullable=False)
+    home_club_id = Column(Integer, ForeignKey('club.id'))
+    home_club = relationship("ClubModel", foreign_keys=[home_club_id])
+    away_club_id = Column(Integer, ForeignKey('club.id'))
+    away_club = relationship("ClubModel", foreign_keys=[away_club_id])
+    home_club_name = Column(String(255), nullable=False)
+    away_club_name = Column(String(255), nullable=False)
+    result = Column(String(10), nullable=False)
+    url = Column(String(255), nullable=False)
+
+    @classmethod
+    def from_item(cls, item):
+        data = {
+            'id': item['match_id']
+            , 'date': item['date']
+            , 'season': item['season']
+            , 'match_day': item['match_day']
+            , 'time_at': item['time_at']
+            , 'home_club_id': item['home_club_id']
+            , 'home_club_name': item['home_club_name']
+            , 'away_club_name': item['away_club_name']
+            , 'away_club_id': item['away_club_id']
+            , 'result': item['result']
+            , 'url': item['url']
+        }
+        return cls(**data)

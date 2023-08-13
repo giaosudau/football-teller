@@ -118,14 +118,22 @@ class TransfermarkSpider(scrapy.Spider):
                 prev_date = date_parsed
                 prev_time_at = time_parsed
 
+                home_club_xpath = f'//*[@id="main"]/main/div[2]/div[{i + 1}]/div/table/tbody/tr[{j + 2}]/td[3]/a'
+                away_club_xpath = f'//*[@id="main"]/main/div[2]/div[{i + 1}]/div/table/tbody/tr[{j + 2}]/td[7]/a'
+
+                home_club_url = response.xpath(f'{home_club_xpath}/@href').get()
+                home_club_id = home_club_url.split("/")[4]
+                away_club_url = response.xpath(f'{away_club_xpath}/@href').get()
+                away_club_id = away_club_url.split("/")[4]
                 match_item = MatchItem(
                     date=date_parsed
+                    ,season = self.season
                     , match_day=i
                     , time_at=time_parsed
-                    , club_name_home=response.xpath(
-                        f'//*[@id="main"]/main/div[2]/div[{i + 1}]/div/table/tbody/tr[{j + 2}]/td[3]/a/@title').get()
-                    , club_name_away=response.xpath(
-                        f'//*[@id="main"]/main/div[2]/div[{i + 1}]/div/table/tbody/tr[{j + 2}]/td[7]/a/@title').get()
+                    , home_club_name=response.xpath(f'{home_club_xpath}/@title').get()
+                    , home_club_id=home_club_id
+                    , away_club_name=response.xpath(f'{away_club_xpath}/@title').get()
+                    , away_club_id=away_club_id
                     , result=result
                     , match_id=url.split('/')[-1]
                     , url=url
