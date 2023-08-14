@@ -9,8 +9,3 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: test_db
-    volumes:
-      - dbdata:/var/lib/mysql
-
-volumes:
-  dbdata:

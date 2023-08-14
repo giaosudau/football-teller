@@ -20,6 +20,7 @@ class LeagueItem(scrapy.Item):
 
 class MatchItem(scrapy.Item):
     date = scrapy.Field()
+    league_id = scrapy.Field()
     season = scrapy.Field()
     match_day = scrapy.Field()
     time_at = scrapy.Field()
@@ -46,7 +47,9 @@ class ClubItem(scrapy.Item):
 
 
 class PlayerItem(scrapy.Item):
-    numer = scrapy.Field()
+    id = scrapy.Field()
+    club_id = scrapy.Field()
+    number = scrapy.Field()
     season = scrapy.Field()
     url = scrapy.Field()
     name = scrapy.Field()

@@ -24,7 +24,7 @@ class TransfermarkSpider(scrapy.Spider):
         last_page_class = 'tm-pagination__list-item--icon-last-page'
         page_item_class = 'tm-pagination__list-item'
         num_pages = response.xpath(f'//*[@class="{page_item_class} {last_page_class}"]//@href').get().split("=")[-1]
-        self.logger.info(f"Num Pages {num_pages}")
+        self.logger.info(f"-----------Num Pages {num_pages}")
         for i in range(1, int(num_pages) + 1):
             url = f'{self.start_urls[0]}?page={i}'
             yield scrapy.Request(url, callback=self.parse_region_by_page)
@@ -32,9 +32,8 @@ class TransfermarkSpider(scrapy.Spider):
     def parse_region_by_page(self, response, **kwargs):
         num_leagues = len(response.xpath('//*[@id="yw1"]/table/tbody/tr/td[1]//tr/td[2]//a/@href').extract())
         self.logger.info(f"-------------Numer of league {num_leagues} -------------")
-        for i in range(2, num_leagues + 2):
+        for i in range(1, num_leagues + 2):
             league_url = response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[1]//tr/td[1]//@href').get()
-            self.logger.debug(league_url)
             if not league_url:
                 self.logger.debug("Skip the Section")
                 continue
@@ -50,7 +49,7 @@ class TransfermarkSpider(scrapy.Spider):
                 , percentage_foreigner=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[6]//text()').get()
                 , total_value=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[8]//text()').get()
             )
-            self.logger.debug(league)
+            # self.logger.debug(league)
             yield league
             url = str(response.urljoin(league_url)) + f'/plus/?saison_id={self.season}'
             yield scrapy.Request(url, callback=self.parse_league, meta={'league_id': league_id})
@@ -62,7 +61,6 @@ class TransfermarkSpider(scrapy.Spider):
         for i in range(1, num_clubs + 1):
             league_url = response.xpath(f'.//tr[{i}]/td[1]/a/@href').get()
             slug_name = league_url.split('/')[1]
-            code_name = league_url.split('/')[4]
             club_league = ClubItem(
                 name=response.xpath(f'.//tr[{i}]/td[1]/a/@title').get()
                 , slug_name=slug_name
@@ -77,13 +75,13 @@ class TransfermarkSpider(scrapy.Spider):
             )
             self.logger.debug(club_league)
             yield club_league
-
-            league_match_url = f'https://www.transfermarkt.co.uk/{slug_name}/gesamtspielplan/wettbewerb/{code_name}/saison_id/{self.season}'
-            yield scrapy.Request(league_match_url, callback=self.parse_league_match)
-
             club_url = response.xpath(f'.//tr[{i}]/td[2]/a/@href').get()
             url = str(response.urljoin(club_url))
             yield scrapy.Request(url, callback=self.parse_club)
+
+            league_match_url = f'https://www.transfermarkt.co.uk/{slug_name}/gesamtspielplan/wettbewerb/{league_id}/saison_id/{self.season}'
+            self.logger.debug(f"league_match_url {league_match_url}")
+            yield scrapy.Request(league_match_url, callback=self.parse_league_match, meta={'league_id': league_id})
 
     def parse_league_match(self, response, **kwargs):
         match_days = response.xpath(
@@ -91,6 +89,7 @@ class TransfermarkSpider(scrapy.Spider):
         self.logger.info(f"-------------TOTAL MATCH DAY {len(match_days)}-------------")
         prev_date = None
         prev_time_at = None
+        league_id = response.request.meta['league_id']
         for i in range(1, len(match_days) + 1):
             self.logger.debug(f"-------------MATCH DAY {i}-------------")
             num_matches = len(
@@ -127,7 +126,8 @@ class TransfermarkSpider(scrapy.Spider):
                 away_club_id = away_club_url.split("/")[4]
                 match_item = MatchItem(
                     date=date_parsed
-                    ,season = self.season
+                    , season=self.season
+                    , league_id=league_id
                     , match_day=i
                     , time_at=time_parsed
                     , home_club_name=response.xpath(f'{home_club_xpath}/@title').get()
@@ -144,26 +144,27 @@ class TransfermarkSpider(scrapy.Spider):
     def parse_club(self, response, **kwargs):
         nums_players = len(response.xpath('//*[@id="yw1"]/table/tbody/tr').extract())
         self.logger.info(f"-------------Parse function num players {nums_players} -------------")
-
+        club_id = response.xpath('//*[@id="overview"]/a/@href').get().split("/")[4]
         for i in range(1, nums_players + 1):
+            player_url = response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[2]/table//tr[1]/td[2]/a/@href').get()
             player = PlayerItem(
-                numer=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[1]/div/text()').get()
-                ,
-                url=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[2]/table//tr[1]/td[2]/a/@href').get()
+                id=player_url.split('/')[4]
+                , club_id=club_id
+                , season=self.season
+                , number=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[1]/div/text()').get()
+                , url=player_url
                 , name=response.xpath(
                     f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[2]/table//tr[1]/td[2]/a/text()').get()
                 , position=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[2]//tr[2]/td/text()').get()
                 , birth=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[4]/text()').get()
                 , nationality=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[5]/img/@alt').extract()
-                , market_value=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[6]/a/text()').extract()
+                , market_value=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[6]/a/text()').get()
             )
             self.logger.debug(player)
             yield player
-            player_url = response.xpath(
-                f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[2]/table//tr[1]/td[2]/a/@href').get()
             url = str(response.urljoin(player_url))
             self.logger.debug(url)
-            yield scrapy.Request(url, callback=self.parse_player)
+            # yield scrapy.Request(url, callback=self.parse_player)
 
     def parse_player(self, response, **kwargs):
         pass

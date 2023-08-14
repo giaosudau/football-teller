@@ -15,11 +15,7 @@ def fake_response_from_file(file_name, url=None):
         url = 'https://www.transfermarkt.co.uk'
 
     request = Request(url=url)
-    if not file_name[0] == '/':
-        responses_dir = os.path.dirname(os.path.realpath(__file__))
-        file_path = os.path.join(responses_dir, file_name)
-    else:
-        file_path = file_name
+    file_path = get_file_path(file_name)
 
     file_content = open(file_path, 'r').read()
 
@@ -28,3 +24,12 @@ def fake_response_from_file(file_name, url=None):
                             request=request,
                             body=file_content)
     return response
+
+
+def get_file_path(file_name):
+    if not file_name[0] == '/':
+        responses_dir = os.path.dirname(os.path.realpath(__file__))
+        file_path = os.path.join(responses_dir, file_name)
+    else:
+        file_path = file_name
+    return file_path
