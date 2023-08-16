@@ -20,5 +20,40 @@ services:
       - ".:/app"
     entrypoint: scrapy crawl transfermark
 
+  app:
+    build:
+      context: .
+      dockerfile: App.Dockerfile
+    ports:
+      - '6000:5000'
+    volumes:
+      - ".:/app"
+    environment:
+      OPENAI_API_KEY: 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
+      ENV: dev
+    depends_on:
+      - db
+
+  ui:
+    build:
+      context: .
+      dockerfile: UI.Dockerfile
+    volumes:
+      - "./qa-app:/app"
+    ports:
+      - '3000:80'
+    depends_on:
+      - app
+      - db
+  proxy:
+    image: nginx:latest
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - ui
+      - app
+
 volumes:
   dbdata:
