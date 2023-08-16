@@ -1,10 +1,9 @@
-import configparser
 from abc import ABCMeta, abstractmethod
 
-from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
+from config import get_config, get_sql_engine
 from football_spider.items import LeagueItem, ClubItem, PlayerItem, MatchItem
 from models import Base, LeagueModel, ClubModel, MatchModel, PlayerModel
 
@@ -58,16 +57,14 @@ class DatabasePipeline(object, metaclass=ABCMeta):
 
 class MySQLPipeline(DatabasePipeline):
 
-    def __init__(self, config_path='config.cfg'):
+    def __init__(self, env='dev'):
         super().__init__()
         self.session = None
-        self.config = configparser.ConfigParser()
-        self.config.read(config_path)
+        self.config = get_config(env)
+        self.engine = get_sql_engine(env)
 
     def open_spider(self, spider):
         db_config = self.config['mysql']
-        mysql_url = f'mysql+pymysql://{db_config["user"]}:{db_config["password"]}@{db_config["host"]}:{db_config["port"]}/{db_config["db"]}'
-        self.engine = create_engine(mysql_url)
         # Create the table in the database
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
@@ -83,7 +80,6 @@ class MySQLPipeline(DatabasePipeline):
         return item
 
     def process_match(self, item, spider):
-        print("=========process_match===========", item)
         try:
             self.session.merge(MatchModel().from_item(item))
         except IntegrityError:

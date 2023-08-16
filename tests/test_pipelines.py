@@ -33,7 +33,7 @@ class TestMySQLPipeline(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        subprocess.run(["docker-compose", "-f", get_file_path("./test-docker-compose.yml"), "up", "-d"])
+        subprocess.run(["docker-compose", "-f", get_file_path("./test-docker-compose.yml"), "up", "db", "-d"])
 
     @classmethod
     def tearDownClass(cls):
