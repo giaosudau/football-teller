@@ -16,13 +16,15 @@ def fake_response_from_file(file_name, url=None):
 
     request = Request(url=url)
     file_path = get_file_path(file_name)
-
-    file_content = open(file_path, 'r').read()
-
-    response = HtmlResponse(url=url,
-                            encoding='utf-8',
-                            request=request,
-                            body=file_content)
+    file = open(file_path, 'r', encoding='UTF-8')
+    try:
+        content = file.read()
+        response = HtmlResponse(url=url,
+                                encoding='utf-8',
+                                request=request,
+                                body=content)
+    finally:
+        file.close()
     return response
 
 
