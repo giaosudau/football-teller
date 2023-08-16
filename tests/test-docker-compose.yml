@@ -4,12 +4,21 @@ services:
 
   db:
     image: mysql:8.0
-    volumes:
-      - test_db_data:/var/lib/mysql
-      - ./sql/dump_data.sql:/docker-entrypoint-initdb.d/dump.sql
     ports:
       - "3307:3306"
     environment:
+      ENV: test
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: test_db
+
+  db_with_data:
+    image: mysql:8.0
+    volumes:
+      - ./dump_data.sql:/docker-entrypoint-initdb.d/dump.sql
+    ports:
+      - "3307:3306"
+    environment:
+      ENV: test
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: test_db
 
