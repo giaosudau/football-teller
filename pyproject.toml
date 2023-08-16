@@ -12,6 +12,11 @@ scrapy = "^2.10.0"
 bs4 = "^0.0.1"
 sqlalchemy = "^2.0.19"
 pymysql = "^1.1.0"
+openai = "^0.27.8"
+llama-index = "0.8.1.post1"
+ipython = "^8.14.0"
+nltk = "^3.8.1"
+flask = "^2.3.2"
 
 
 [build-system]

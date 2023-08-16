@@ -25,7 +25,7 @@ class TestApp(unittest.TestCase):
     def setUp(self):
         for i in range(20):
             try:
-                get_sql_engine(env='test').engine.connect()
+                get_sql_engine().engine.connect()
                 break
             except OperationalError:
                 time.sleep(5)  # Wait and retry
@@ -50,7 +50,7 @@ class TestApp(unittest.TestCase):
 
         # Assert the 'answer' key exists in the response
         self.assertIn('answer', response_data)
-        self.assertIn('answer', '34')
+        self.assertEqual('34' in response_data['answer'], True)
 
 
 if __name__ == '__main__':

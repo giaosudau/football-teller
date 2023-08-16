@@ -5,9 +5,9 @@ from config import get_sql_engine
 
 
 class QA:
-    def __init__(self, api, env='dev'):
+    def __init__(self, api):
         self.api = api
-        sql_engine = get_sql_engine(env)
+        sql_engine = get_sql_engine()
         sql_database = SQLDatabase(sql_engine)
         builder = SQLContextContainerBuilder(sql_database)
         context_builder = builder.build_context_container()

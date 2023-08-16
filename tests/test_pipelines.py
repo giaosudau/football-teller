@@ -17,13 +17,15 @@ class TestMySQLPipeline(unittest.TestCase):
         for i in range(20):
             try:
                 self.spider = TransfermarkSpider()
-                self.pipeline = MySQLPipeline(env='test')
+                self.pipeline = MySQLPipeline()
                 self.pipeline.open_spider(None)
                 self.conn = self.pipeline.engine.connect()
                 self.session = self.pipeline.session
                 break
-            except OperationalError:
-                time.sleep(5)  # Wait and retry
+            except OperationalError as e:
+                print(e)
+                print("Waiting db to be ready for connection ....")
+                time.sleep(5)
         else:
             raise Exception("Database not ready")
 

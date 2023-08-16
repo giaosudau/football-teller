@@ -10,10 +10,8 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-env = os.environ.get('ENV', 'dev')
-print("ENV ", env)
 openai_provider = OpenAIAPI(model="gpt-3.5-turbo", temperature=0, max_tokens=1024)
-qa_instance = QA(api=openai_provider, env=env)
+qa_instance = QA(api=openai_provider)
 
 
 @app.route('/chat', methods=['POST'])

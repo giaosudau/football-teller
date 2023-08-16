@@ -1,9 +1,10 @@
+import os
 from abc import ABCMeta, abstractmethod
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
-from config import get_config, get_sql_engine
+from config import get_sql_engine
 from football_spider.items import LeagueItem, ClubItem, PlayerItem, MatchItem
 from models import Base, LeagueModel, ClubModel, MatchModel, PlayerModel
 
@@ -57,19 +58,18 @@ class DatabasePipeline(object, metaclass=ABCMeta):
 
 class MySQLPipeline(DatabasePipeline):
 
-    def __init__(self, env='dev'):
+    def __init__(self):
         super().__init__()
         self.session = None
-        self.config = get_config(env)
-        self.engine = get_sql_engine(env)
+        threshold = os.environ.get("COMMIT_THRESHOLD", 1000)
+        self.threshold = int(threshold)
+        self.engine = get_sql_engine()
 
     def open_spider(self, spider):
-        db_config = self.config['mysql']
         # Create the table in the database
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
         Base.metadata.create_all(self.engine)
-        self.threshold = int(db_config.get('commit_threshold', 1000))
 
     def process_league(self, item: LeagueItem, spider):
         try:
