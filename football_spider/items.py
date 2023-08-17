@@ -8,6 +8,7 @@ import scrapy
 
 class LeagueItem(scrapy.Item):
     id = scrapy.Field()
+    season = scrapy.Field()
     name = scrapy.Field()
     url = scrapy.Field()
     country = scrapy.Field()

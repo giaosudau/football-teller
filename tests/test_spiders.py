@@ -33,7 +33,7 @@ class TransfermarktSpiderTest(unittest.TestCase):
     def test_parse_club(self):
         results = self.spider.parse_club(
             fake_response_from_file('samples/Manchester City - Club profile _ Transfermarkt.html'))
-        # PL should have 20 clubs
+        # PL should have 27 players
         self._test_item_results(results, 27)
 
     def test_parse_league_match(self):

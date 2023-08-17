@@ -62,6 +62,7 @@ class LeagueModel(Base):
     __tablename__ = 'leagues'
 
     league_id = Column(String(5), primary_key=True)
+    league_season = Column(String(255), primary_key=True)
     league_name = Column(String(255), nullable=False, index=True)
     league_url = Column(String(255), nullable=False)
     league_country = Column(String(255), nullable=False)
@@ -80,6 +81,7 @@ class LeagueModel(Base):
         avg_age = clean_get_number_val(item['avg_age'])
         data = {
             'league_id': item['id']
+            , 'league_season': item['season']
             , 'league_name': item['name']
             , 'league_url': item['url']
             , 'league_country': item['country']
@@ -95,11 +97,11 @@ class LeagueModel(Base):
 class ClubModel(Base):
     __tablename__ = 'clubs'
     club_id = Column(Integer, primary_key=True)
+    club_season = Column(String(255), primary_key=True)
     club_name = Column(String(255), nullable=False, index=True)
     club_url = Column(String(255), nullable=False)
     club_league_id = Column(String(5), ForeignKey('leagues.league_id'))
     club_league = relationship("LeagueModel")
-    club_season = Column(String(255), nullable=False)
 
     club_slug_name = Column(String(255), nullable=False)
     club_squads = Column(Integer)
@@ -136,7 +138,7 @@ class MatchModel(Base):
     __tablename__ = 'games'
 
     game_id = Column(Integer, primary_key=True)
-    game_season = Column(String(255), nullable=False)
+    game_season = Column(String(255), primary_key=True)
     game_date = Column(String(20), nullable=False)
     game_day = Column(String(10), nullable=False)
     game_time_at = Column(String(20), nullable=False)
@@ -174,10 +176,10 @@ class PlayerModel(Base):
     __tablename__ = 'players'
 
     player_id = Column(Integer, primary_key=True)
+    player_season = Column(String(255), primary_key=True)
     player_club_id = Column(Integer, ForeignKey('clubs.club_id'))
     player_club = relationship("ClubModel", foreign_keys=[player_club_id])
     player_number = Column(Integer)
-    player_season = Column(String(255), nullable=False)
     player_url = Column(String(255), nullable=False)
     player_name = Column(String(255), nullable=False)
     player_position = Column(String(255))

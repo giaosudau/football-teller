@@ -41,6 +41,7 @@ class TransfermarkSpider(scrapy.Spider):
             league = LeagueItem(
                 url=league_url
                 , id=league_id
+                , season=self.season
                 , name=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[1]//tr/td[2]/a/text()').get()
                 , country=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[2]/img/@title').get()
                 , num_clubs=response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[3]/text()').get()
@@ -73,14 +74,14 @@ class TransfermarkSpider(scrapy.Spider):
                 , avg_market_value=response.xpath(f'.//tr[{i}]/td[6]/text()').get()
                 , total_market_value=response.xpath(f'.//tr[{i}]/td[7]/a/text()').get()
             )
-            self.logger.debug(club_league)
+            # self.logger.debug(club_league)
             yield club_league
             club_url = response.xpath(f'.//tr[{i}]/td[2]/a/@href').get()
             url = str(response.urljoin(club_url))
             yield scrapy.Request(url, callback=self.parse_club)
 
             league_match_url = f'https://www.transfermarkt.co.uk/{slug_name}/gesamtspielplan/wettbewerb/{league_id}/saison_id/{self.season}'
-            self.logger.debug(f"league_match_url {league_match_url}")
+            # self.logger.debug(f"league_match_url {league_match_url}")
             yield scrapy.Request(league_match_url, callback=self.parse_league_match, meta={'league_id': league_id})
 
     def parse_league_match(self, response, **kwargs):
