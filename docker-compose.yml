@@ -12,6 +12,8 @@ services:
       test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
       timeout: 6s
       retries: 10
+    env_file:
+      - conf/.env.dev
 
   spider:
     build:
@@ -20,7 +22,7 @@ services:
     volumes:
       - ".:/app"
     env_file:
-      - dev.env
+      - conf/.env.dev
     entrypoint: scrapy crawl transfermark -a season=2022
     depends_on:
       db:
@@ -33,7 +35,7 @@ services:
     ports:
       - '6000:5000'
     env_file:
-      - dev.env
+      - conf/.env.dev
     volumes:
       - ".:/app"
     depends_on:

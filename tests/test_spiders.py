@@ -37,7 +37,8 @@ class TransfermarktSpiderTest(unittest.TestCase):
         self._test_item_results(results, 27)
 
     def test_parse_league_match(self):
-        response_from_file = fake_response_from_file('samples/Premier League - All fixtures & results _ Transfermarkt.html')
+        response_from_file = fake_response_from_file(
+            'samples/Premier League - All fixtures & results _ Transfermarkt.html')
         response_from_file.request.meta['league_id'] = {'league_id': 'GB1'}
         results = self.spider.parse_league_match(
             response_from_file)

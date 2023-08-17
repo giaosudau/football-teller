@@ -7,7 +7,7 @@ services:
     ports:
       - "3307:3306"
     env_file:
-      - test.env
+      - ../conf/.env.test
 
 
   db_with_data:
@@ -17,5 +17,5 @@ services:
     ports:
       - "3307:3306"
     env_file:
-      - test.env
+      - ../conf/.env.test
 

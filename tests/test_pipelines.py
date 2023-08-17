@@ -43,9 +43,10 @@ class TestMySQLPipeline(unittest.TestCase):
 
     def test_db_connection(self):
         # Check connection is active
-        self.assertTrue(self.conn.closed == False)
+        self.assertTrue(self.conn.closed is False)
 
-    def _sample_an_item(self, results):
+    @staticmethod
+    def _sample_an_item(results):
         for item in results:
             if isinstance(item, (scrapy.Item, dict)):
                 return item
@@ -98,6 +99,7 @@ class TestMySQLPipeline(unittest.TestCase):
         league.league_num_clubs = '20'
         league.league_num_players = '734'
         league.league_avg_age = '17.4'
+        league.league_season = 2022
 
         self.session.merge(league)
         self.prepare_test_data(club_file_name='samples/A-pojat SM-sarja 2023 _ Transfermarkt.html', league_id=league_id)

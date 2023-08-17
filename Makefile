@@ -8,7 +8,7 @@ PYTHON ?= python
 install:
 	pip install --user $(POETRY)
 
-include tests/test.env
+include conf/.env.test
 export
 test:
 	$(POETRY) install --no-root
