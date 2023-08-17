@@ -114,8 +114,18 @@ To run the app, use the provided `docker-compose.yml` file and `Makefile`:
 
 ### Setup
 
-1. Clone this repository.
-2. Create a `dev.env` file with necessary environment variables.
+1. Clone this repository `git clone https://github.com/giaosudau/football-teller.git`
+2. Create 2 files `conf/.env.dev and conf/.env.test` file with your configuration, including OPENAI_API_KEY.
+```commandline
+MYSQL_ROOT_PASSWORD=123456
+MYSQL_DATABASE=mydb
+MYSQL_DB_USER=root
+MYSQL_DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+MYSQL_DB_HOST=db
+MYSQL_DB_PORT=3306
+COMMIT_THRESHOLD=1000
+OPENAI_API_KEY=
+```
 3. Run the following command to start the app:
 
    ```sh
@@ -127,9 +137,8 @@ To run the app, use the provided `docker-compose.yml` file and `Makefile`:
 
 The app can be deployed using Docker Compose:
 
-1. Edit the dev.env file with your configuration, including OPENAI_API_KEY.
 
-2. Run the following command to start the app:
+- Run the following command to start the app:
 
    ```sh
    docker-compose up
@@ -137,8 +146,8 @@ The app can be deployed using Docker Compose:
    This will start the backend, database, crawler and frontend containers.
    You need to wait a bit for database to up and spider to run for crawling data
    
-**Open the chat UI:**
-   After docker-compose up completes, you can access the chat UI at: `http://localhost`
+### **Open the chat UI:**
+   After docker-compose up completes, you can access the chat UI at: `http://localhost` type your question and get the answer.
 
 
 ## Sample Question and Answer
@@ -165,6 +174,3 @@ Contributions are welcome! Feel free to submit issues and pull requests.
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-```
-
-You can copy and paste this markdown into your `README.md` file. Please make sure to adjust any placeholders like project names, descriptions, and paths to fit your actual project structure.
