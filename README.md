@@ -134,6 +134,29 @@ The app can be deployed using Docker Compose:
    ```sh
    docker-compose up
    ```
+   This will start the backend, database, crawler and frontend containers.
+   You need to wait a bit for database to up and spider to run for crawling data
+   
+**Open the chat UI:**
+   After docker-compose up completes, you can access the chat UI at: `http://localhost`
+
+
+## Sample Question and Answer
+
+| Question | Answer |
+|-|-|  
+| How many squads play for Manchester City? | There are 34 squads that play for Manchester City. |
+| Tell me the country that Machester City belong to? | Manchester City belongs to England. |
+| What was the total number of wins for Manchester City against Arsenal FC in the 2022 season? | The total number of wins for Manchester City against Arsenal FC in the 2022 season is 2. |
+
+
+## Current Issues
+- Issue 1: UI app doesn't store history of questions yet.
+- Issue 2: Can't handle questions have to use multiples queries.
+
+## Further Improvements
+- Improvement 1: Get Game and Player together.
+- Improvement 2: Get Cup Competition.
 
 ## Contributing
 
