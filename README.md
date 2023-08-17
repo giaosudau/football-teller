@@ -145,7 +145,11 @@ The app can be deployed using Docker Compose:
    ```
    This will start the backend, database, crawler and frontend containers.
    You need to wait a bit for database to up and spider to run for crawling data
-   
+
+- Crawl difference season by editing `docker-compose.yml` line 26 `entrypoint: scrapy crawl transfermark -a season=2022`
+    ```shell
+    docker-compose up spider -d 
+    ```
 ### **Open the chat UI:**
    After docker-compose up completes, you can access the chat UI at: `http://localhost` type your question and get the answer.
 
