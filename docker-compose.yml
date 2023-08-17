@@ -6,11 +6,12 @@ services:
     image: mysql:8.0
     ports:
       - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: mydb
     volumes:
       - dbdata:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 6s
+      retries: 10
 
   spider:
     build:
@@ -18,7 +19,12 @@ services:
       dockerfile: Spider.Dockerfile
     volumes:
       - ".:/app"
-    entrypoint: scrapy crawl transfermark
+    env_file:
+      - dev.env
+    entrypoint: scrapy crawl transfermark -a season=2022
+    depends_on:
+      db:
+        condition: service_healthy
 
   app:
     build:
@@ -26,13 +32,13 @@ services:
       dockerfile: App.Dockerfile
     ports:
       - '6000:5000'
+    env_file:
+      - dev.env
     volumes:
       - ".:/app"
-    environment:
-      OPENAI_API_KEY: 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
-      ENV: dev
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   ui:
     build:
@@ -45,6 +51,7 @@ services:
     depends_on:
       - app
       - db
+
   proxy:
     image: nginx:latest
     ports:
