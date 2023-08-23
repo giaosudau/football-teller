@@ -94,3 +94,16 @@ FEED_EXPORT_ENCODING = "utf-8"
 CLOSESPIDER_ERRORCOUNT = 1
 
 COMMIT_THRESHOLD = 1000
+
+# Log levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG_LEVEL = 'INFO'
+
+# Enable logging to console
+LOG_ENABLED = True
+
+# Set log format
+LOG_FORMAT = '%(levelname)s: %(message)s'
+
+
+# Send logs to log.txt file
+LOG_FILE = 'spider_log.txt'

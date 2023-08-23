@@ -6,11 +6,11 @@ from flask import Flask, request, jsonify
 from chat.api import OpenAIAPI
 from chat.qa import QA
 
-logger = logging.getLogger(__name__)
-
+logging.basicConfig(filename='record.log',
+                    level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 app = Flask(__name__)
 
-openai_provider = OpenAIAPI(model="gpt-3.5-turbo", temperature=0, max_tokens=1024)
+openai_provider = OpenAIAPI(model="gpt-3.5-turbo", temperature=0.3, max_tokens=1024)
 qa_instance = QA(api=openai_provider)
 
 
@@ -24,8 +24,8 @@ def answer_question():
     app.logger.debug(f'Question: {question}')
     if question:
         answer_row = qa_instance.ask(question)
-        logger.debug(f'Answer Meta: {answer_row.metadata}')
-        logger.debug(f'Answer Response: {answer_row.response}')
+        app.logger.debug(f'Answer Meta: {answer_row.metadata}')
+        app.logger.debug(f'Answer Response: {answer_row.response}')
         return jsonify({"answer": answer_row.response})
 
     return jsonify({"error": "Question missing"}), 400

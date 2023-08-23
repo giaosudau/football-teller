@@ -58,3 +58,14 @@ class PlayerItem(scrapy.Item):
     birth = scrapy.Field()
     nationality = scrapy.Field()
     market_value = scrapy.Field()
+
+
+class GoalItem(scrapy.Item):
+    goal_id = scrapy.Field()
+    player_id = scrapy.Field()
+    club_id = scrapy.Field()
+    is_home_goal = scrapy.Field()
+    game_id = scrapy.Field()
+    goal_at_minutes = scrapy.Field()
+    goal_score = scrapy.Field()
+    goal_detail = scrapy.Field()

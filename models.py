@@ -1,6 +1,6 @@
 import re
 
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -201,5 +201,31 @@ class PlayerModel(Base):
             , 'player_birth': item['birth']
             , 'player_nationality': ','.join(item['nationality'])
             , 'player_market_value': market_value
+        }
+        return cls(**data)
+
+
+class GoalModel(Base):
+    __tablename__ = 'goals'
+    goal_id = Column(Integer, primary_key=True)
+    goal_game_id = Column(Integer, ForeignKey('games.game_id'), primary_key=True)
+    goal_club_id = Column(Integer, ForeignKey('clubs.club_id'), primary_key=True)
+    goal_player_id = Column(Integer, ForeignKey('players.player_id'), primary_key=True)
+    is_home_goal = Column(Boolean, nullable=False)
+    goal_at_minutes = Column(Integer, nullable=False)
+    goal_score = Column(String(10), nullable=False)
+    goal_detail = Column(String(255))
+
+    @classmethod
+    def from_item(cls, item):
+        data = {
+            'goal_id': item['goal_id']
+            , 'goal_game_id': item['game_id']
+            , 'goal_player_id': item['player_id']
+            , 'goal_club_id': item['club_id']
+            , 'goal_at_minutes': item['goal_at_minutes']
+            , 'is_home_goal': item['is_home_goal']
+            , 'goal_score': item['goal_score']
+            , 'goal_detail': item['goal_detail']
         }
         return cls(**data)

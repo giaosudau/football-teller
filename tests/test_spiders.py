@@ -2,7 +2,7 @@ import unittest
 
 import scrapy
 
-from football_spider.spiders.TransfermarkSpider import TransfermarkSpider
+from football_spider.spiders.TransfermarkSpider import TransfermarkSpider, get_image_number
 from tests import fake_response_from_file
 
 
@@ -44,6 +44,21 @@ class TransfermarktSpiderTest(unittest.TestCase):
             response_from_file)
 
         self._test_item_results(results, 380)
+
+    def test_parse_style_to_number(self):
+        test_cases = [
+            ("background-position: -144px -288px", 85),
+            ("background-position: -324px -288px", 90),
+            ("background-position: -180px -108px", 36),
+            ("background-position: -108px -216px", 64),
+            ("background-position: -216px 0px", 7),
+        ]
+
+        for background_position, expected_result in test_cases:
+            calculated_result = get_image_number(background_position)
+            print(
+                f"Background Position: {background_position} | Expected: {expected_result} | Calculated: {calculated_result}")
+            self.assertEqual(expected_result, calculated_result)
 
 
 if __name__ == '__main__':

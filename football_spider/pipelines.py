@@ -5,8 +5,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 from config import get_sql_engine
-from football_spider.items import LeagueItem, ClubItem, PlayerItem, MatchItem
-from models import Base, LeagueModel, ClubModel, MatchModel, PlayerModel
+from football_spider.items import LeagueItem, ClubItem, PlayerItem, MatchItem, GoalItem
+from models import Base, LeagueModel, ClubModel, MatchModel, PlayerModel, GoalModel
 
 
 class DatabasePipeline(object, metaclass=ABCMeta):
@@ -17,6 +17,7 @@ class DatabasePipeline(object, metaclass=ABCMeta):
             , MatchItem: self.process_match
             , ClubItem: self.process_club
             , PlayerItem: self.process_player
+            , GoalItem: self.process_goal
         }
         self.counter = 0
         self.threshold = 1000
@@ -53,6 +54,10 @@ class DatabasePipeline(object, metaclass=ABCMeta):
 
     @abstractmethod
     def process_player(self, item, spider):
+        pass
+
+    @abstractmethod
+    def process_goal(self, item, spider):
         pass
 
 
@@ -96,6 +101,13 @@ class MySQLPipeline(DatabasePipeline):
     def process_player(self, item, spider):
         try:
             self.session.merge(PlayerModel().from_item(item))
+        except IntegrityError:
+            print("Insert failed")
+        return item
+
+    def process_goal(self, item, spider):
+        try:
+            self.session.merge(GoalModel().from_item(item))
         except IntegrityError:
             print("Insert failed")
         return item
