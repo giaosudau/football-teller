@@ -33,10 +33,11 @@ class TransfermarkSpider(scrapy.Spider):
     name = "transfermark"
     start_urls = ['https://www.transfermarkt.co.uk/wettbewerbe/europa']
 
-    def __init__(self, season='2022', num_pages=None, **kwargs):
+    def __init__(self, season='2022', num_pages=None, num_leagues_per_page=None, **kwargs):
         super().__init__(**kwargs)
         self.season = season
         self.num_page = num_pages
+        self.num_leagues_per_page = num_leagues_per_page
 
     def start_requests(self):
         for url in self.start_urls:
@@ -50,15 +51,16 @@ class TransfermarkSpider(scrapy.Spider):
         self.logger.info(f"-----------Num Pages {num_pages}")
         if not self.num_page:
             self.num_page = int(num_pages)
-        for i in range(1, self.num_page + 1):
+        for i in range(1, int(self.num_page) + 1):
             url = f'{self.start_urls[0]}?page={i}'
             yield scrapy.Request(url, callback=self.parse_region_by_page)
 
     def parse_region_by_page(self, response, **kwargs):
         num_leagues = len(response.xpath('//*[@id="yw1"]/table/tbody/tr/td[1]//tr/td[2]//a/@href').extract())
         self.logger.info(f"-------------Numer of league {num_leagues} -------------")
-        # for i in range(1, num_leagues + 2):
-        for i in range(1, 3):
+        if not self.num_leagues_per_page:
+            self.num_leagues_per_page = num_leagues
+        for i in range(1, int(self.num_leagues_per_page) + 2):
             league_url = response.xpath(f'//*[@id="yw1"]/table/tbody/tr[{i}]/td[1]//tr/td[1]//@href').get()
             if not league_url:
                 self.logger.debug("Skip the Section")
@@ -200,6 +202,7 @@ class TransfermarkSpider(scrapy.Spider):
             game_id = response.meta['game_id']
             goal = GoalItem(player_id=player['player_id']
                             , goal_id=f'{game_id}{count}'
+                            , season=self.season
                             , club_id=player['club_id']
                             , is_home_goal=player['is_home_goal']
                             , game_id=game_id

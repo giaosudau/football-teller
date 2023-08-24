@@ -96,11 +96,26 @@ classDiagram
     player_nationality: String(255)
     player_market_value: Float
   }
+  
+  class GoalModel {
+    goal_id: Integer (PK)
+    goal_game_id = Integer (PK)
+    goal_club_id = Integer (PK)
+    goal_player_id = Integer (PK)
+    is_home_goal = Boolean
+    goal_at_minutes = Integer
+    goal_score = String(10)
+    goal_detail = String(255)
+    goal_season = Integer
+  }
 
   LeagueModel --|> ClubModel
   LeagueModel --|> MatchModel
   ClubModel --|> MatchModel
   ClubModel --|> PlayerModel
+  GoalModel --|> PlayerModel
+  GoalModel --|> MatchModel
+  GoalModel --|> ClubModel
 ```
 
 ## Getting Started

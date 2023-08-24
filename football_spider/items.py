@@ -62,6 +62,7 @@ class PlayerItem(scrapy.Item):
 
 class GoalItem(scrapy.Item):
     goal_id = scrapy.Field()
+    season = scrapy.Field()
     player_id = scrapy.Field()
     club_id = scrapy.Field()
     is_home_goal = scrapy.Field()

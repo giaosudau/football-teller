@@ -215,13 +215,19 @@ class GoalModel(Base):
     goal_at_minutes = Column(Integer, nullable=False)
     goal_score = Column(String(10), nullable=False)
     goal_detail = Column(String(255))
+    goal_season = Column(Integer)
 
     @classmethod
     def from_item(cls, item):
+        player_id_ = item['player_id']
+        if '/' in player_id_:
+            player_id_ = player_id_.split("/")[4]
+
         data = {
             'goal_id': item['goal_id']
+            , 'goal_season': item['season']
             , 'goal_game_id': item['game_id']
-            , 'goal_player_id': item['player_id']
+            , 'goal_player_id': player_id_
             , 'goal_club_id': item['club_id']
             , 'goal_at_minutes': item['goal_at_minutes']
             , 'is_home_goal': item['is_home_goal']
